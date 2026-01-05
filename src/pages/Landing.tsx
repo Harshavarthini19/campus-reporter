@@ -79,11 +79,6 @@ const Landing: React.FC = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="animate-fade-in">
-            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              🎓 Trusted by 50+ Universities
-            </span>
-          </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 animate-slide-up">
             Report Campus Issues
             <br />
@@ -109,24 +104,6 @@ const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { value: '10,000+', label: 'Issues Resolved' },
-              { value: '98%', label: 'Satisfaction Rate' },
-              { value: '24h', label: 'Avg. Response Time' },
-              { value: '50+', label: 'Campus Locations' },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">{stat.value}</div>
-                <div className="text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Features Section */}
       <section className="py-20 px-4">

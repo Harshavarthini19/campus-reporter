@@ -295,6 +295,17 @@ export const updateIssue = (id: string, updates: Partial<Issue>): Issue | undefi
   return undefined;
 };
 
+export const deleteIssue = (id: string): boolean => {
+  const issues = getIssues();
+  const index = issues.findIndex(i => i.id === id);
+  if (index !== -1) {
+    issues.splice(index, 1);
+    localStorage.setItem('campus_issues', JSON.stringify(issues));
+    return true;
+  }
+  return false;
+};
+
 export const addComment = (issueId: string, comment: Omit<Comment, 'id' | 'createdAt'>): Issue | undefined => {
   const issues = getIssues();
   const index = issues.findIndex(i => i.id === issueId);

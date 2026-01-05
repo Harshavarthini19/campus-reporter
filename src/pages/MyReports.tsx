@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Filter, MapPin, Clock, MessageSquare, ChevronRight, Eye } from 'lucide-react';
+import { Plus, Search, Filter, MapPin, Clock, MessageSquare, ChevronRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-import { getIssuesByUserId, getUserById, Issue } from '@/lib/storage';
+import { getIssuesByUserId, deleteIssue, Issue } from '@/lib/storage';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -19,8 +20,18 @@ const MyReports: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const issues = user ? getIssuesByUserId(user.id) : [];
+
+  const handleDelete = (e: React.MouseEvent, issueId: string) => {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this report?')) {
+      deleteIssue(issueId);
+      toast.success('Report deleted successfully');
+      setRefreshKey(prev => prev + 1);
+    }
+  };
 
   const filteredIssues = issues
     .filter(issue => {
@@ -172,7 +183,16 @@ const MyReports: React.FC = () => {
                         <h3 className="font-semibold text-foreground mb-1">{issue.title}</h3>
                         <p className="text-sm text-muted-foreground line-clamp-2">{issue.description}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={(e) => handleDelete(e, issue.id)}
+                          className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                          title="Delete report"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-4 mt-4">
                       <span className={getStatusBadge(issue.status)}>
