@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
-import { createIssue, createNotification } from '@/lib/storage';
+import { saveReportToFirestore } from '@/lib/firebaseService';
+import { createNotification } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
@@ -123,38 +124,41 @@ const ReportIssue: React.FC = () => {
     setLoading(true);
 
     try {
-      const issue = createIssue({
+      const result = await saveReportToFirestore({
         userId: user.id,
         type: formData.type,
         title: formData.title,
         description: formData.description,
-        location: { name: formData.location },
+        location: formData.location,
         priority: formData.priority,
-        status: 'new',
         isAnonymous: formData.isAnonymous,
         attachments: formData.attachments.map(f => f.name),
       });
 
-      // Create notification
-      createNotification({
-        userId: user.id,
-        title: 'Issue Submitted',
-        message: `Your ${formData.type} issue "${formData.title}" has been submitted successfully.`,
-        type: 'success',
-        isRead: false,
-        issueId: issue.id,
-      });
+      if (result.success) {
+        // Create notification (keeping local notification for now)
+        createNotification({
+          userId: user.id,
+          title: 'Issue Submitted (Firebase)',
+          message: `Your ${formData.type} issue "${formData.title}" has been saved to Firebase Firestore.`,
+          type: 'success',
+          isRead: false,
+          issueId: result.id as string,
+        });
 
-      toast({
-        title: 'Issue Reported Successfully!',
-        description: 'Your issue has been submitted and will be reviewed shortly.',
-      });
+        toast({
+          title: 'Issue Saved to Firebase!',
+          description: 'Your report is now stored in Firestore and will sync with your Excel sheet.',
+        });
 
-      navigate('/my-reports');
-    } catch (error) {
+        navigate('/my-reports');
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: 'Failed to submit issue. Please try again.',
+        title: 'Firebase Error',
+        description: error.message || 'Failed to submit issue to Firebase.',
         variant: 'destructive',
       });
     } finally {
@@ -191,11 +195,10 @@ const ReportIssue: React.FC = () => {
                 <button
                   key={type.id}
                   onClick={() => handleTypeSelect(type.id)}
-                  className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
-                    formData.type === type.id
+                  className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${formData.type === type.id
                       ? `${type.color} border-current`
                       : 'border-border hover:border-primary/30'
-                  }`}
+                    }`}
                 >
                   <type.icon className="h-8 w-8 mb-4" />
                   <h3 className="font-semibold text-foreground mb-1">{type.title}</h3>
@@ -259,15 +262,14 @@ const ReportIssue: React.FC = () => {
                   <button
                     key={priority}
                     onClick={() => setFormData(prev => ({ ...prev, priority }))}
-                    className={`px-4 py-2 rounded-lg border capitalize transition-all ${
-                      formData.priority === priority
+                    className={`px-4 py-2 rounded-lg border capitalize transition-all ${formData.priority === priority
                         ? priority === 'high'
                           ? 'priority-high border-2'
                           : priority === 'medium'
-                          ? 'priority-medium border-2'
-                          : 'priority-low border-2'
+                            ? 'priority-medium border-2'
+                            : 'priority-low border-2'
                         : 'border-border hover:border-primary/30'
-                    }`}
+                      }`}
                   >
                     {priority}
                   </button>
@@ -299,11 +301,10 @@ const ReportIssue: React.FC = () => {
                   <button
                     key={location}
                     onClick={() => setFormData(prev => ({ ...prev, location }))}
-                    className={`p-3 rounded-lg border text-sm text-left transition-all ${
-                      formData.location === location
+                    className={`p-3 rounded-lg border text-sm text-left transition-all ${formData.location === location
                         ? 'border-primary bg-primary/5 text-primary font-medium'
                         : 'border-border hover:border-primary/30'
-                    }`}
+                      }`}
                   >
                     <MapPin className="h-4 w-4 inline-block mr-1" />
                     {location}
@@ -396,10 +397,9 @@ const ReportIssue: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Priority:</span>
-                  <span className={`font-medium capitalize ${
-                    formData.priority === 'high' ? 'text-destructive' :
-                    formData.priority === 'medium' ? 'text-warning' : 'text-success'
-                  }`}>
+                  <span className={`font-medium capitalize ${formData.priority === 'high' ? 'text-destructive' :
+                      formData.priority === 'medium' ? 'text-warning' : 'text-success'
+                    }`}>
                     {formData.priority}
                   </span>
                 </div>
@@ -465,7 +465,7 @@ const ReportIssue: React.FC = () => {
               </Button>
             )}
             {step === 1 && <div />}
-            
+
             {step < 4 ? (
               <Button
                 className="btn-primary"
