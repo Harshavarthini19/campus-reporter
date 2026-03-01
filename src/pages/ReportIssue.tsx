@@ -126,6 +126,8 @@ const ReportIssue: React.FC = () => {
     try {
       const result = await saveReportToFirestore({
         userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
         type: formData.type,
         title: formData.title,
         description: formData.description,
@@ -196,8 +198,8 @@ const ReportIssue: React.FC = () => {
                   key={type.id}
                   onClick={() => handleTypeSelect(type.id)}
                   className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${formData.type === type.id
-                      ? `${type.color} border-current`
-                      : 'border-border hover:border-primary/30'
+                    ? `${type.color} border-current`
+                    : 'border-border hover:border-primary/30'
                     }`}
                 >
                   <type.icon className="h-8 w-8 mb-4" />
@@ -263,12 +265,12 @@ const ReportIssue: React.FC = () => {
                     key={priority}
                     onClick={() => setFormData(prev => ({ ...prev, priority }))}
                     className={`px-4 py-2 rounded-lg border capitalize transition-all ${formData.priority === priority
-                        ? priority === 'high'
-                          ? 'priority-high border-2'
-                          : priority === 'medium'
-                            ? 'priority-medium border-2'
-                            : 'priority-low border-2'
-                        : 'border-border hover:border-primary/30'
+                      ? priority === 'high'
+                        ? 'priority-high border-2'
+                        : priority === 'medium'
+                          ? 'priority-medium border-2'
+                          : 'priority-low border-2'
+                      : 'border-border hover:border-primary/30'
                       }`}
                   >
                     {priority}
@@ -302,8 +304,8 @@ const ReportIssue: React.FC = () => {
                     key={location}
                     onClick={() => setFormData(prev => ({ ...prev, location }))}
                     className={`p-3 rounded-lg border text-sm text-left transition-all ${formData.location === location
-                        ? 'border-primary bg-primary/5 text-primary font-medium'
-                        : 'border-border hover:border-primary/30'
+                      ? 'border-primary bg-primary/5 text-primary font-medium'
+                      : 'border-border hover:border-primary/30'
                       }`}
                   >
                     <MapPin className="h-4 w-4 inline-block mr-1" />
@@ -398,7 +400,7 @@ const ReportIssue: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Priority:</span>
                   <span className={`font-medium capitalize ${formData.priority === 'high' ? 'text-destructive' :
-                      formData.priority === 'medium' ? 'text-warning' : 'text-success'
+                    formData.priority === 'medium' ? 'text-warning' : 'text-success'
                     }`}>
                     {formData.priority}
                   </span>

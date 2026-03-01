@@ -4,13 +4,27 @@ import { Plus, FileText, Clock, CheckCircle2, AlertTriangle, ArrowRight, Trendin
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { getIssuesByUserId, getIssues } from '@/lib/storage';
+import { getReportsByUserId } from '@/lib/firebaseService';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  
-  const userIssues = user ? getIssuesByUserId(user.id) : [];
+  const [userIssues, setUserIssues] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
   const allIssues = getIssues();
+
+  React.useEffect(() => {
+    const fetchDashData = async () => {
+      if (user) {
+        setIsLoading(true);
+        const firebaseIssues = await getReportsByUserId(user.id);
+        setUserIssues(firebaseIssues);
+        setIsLoading(false);
+      }
+    };
+    fetchDashData();
+  }, [user]);
 
   const stats = {
     total: userIssues.length,
@@ -28,7 +42,7 @@ const Dashboard: React.FC = () => {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -62,7 +76,7 @@ const Dashboard: React.FC = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {user?.name.split(' ')[0]}! 👋
+            Welcome back, {user?.name ? user.name.split(' ')[0] : 'User'}! 👋
           </h1>
           <p className="text-muted-foreground mt-1">
             Here's an overview of your campus issues and activity.
@@ -199,7 +213,7 @@ const Dashboard: React.FC = () => {
               <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
                 <h4 className="font-medium text-foreground">Holiday Schedule Update</h4>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Campus facilities will operate on reduced hours during the winter break. 
+                  Campus facilities will operate on reduced hours during the winter break.
                   Please plan accordingly.
                 </p>
                 <span className="text-xs text-muted-foreground mt-2 block">Dec 20, 2024</span>

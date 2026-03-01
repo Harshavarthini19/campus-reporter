@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams, Navigate } from 'react-router-dom';
-import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Building } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Building, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,7 @@ const Auth: React.FC = () => {
     password: '',
     name: '',
     department: '',
+    role: '',
     confirmPassword: '',
   });
 
@@ -65,6 +66,9 @@ const Auth: React.FC = () => {
       if (!formData.department) {
         newErrors.department = 'Department is required';
       }
+      if (!formData.role) {
+        newErrors.role = 'Role is required';
+      }
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match';
       }
@@ -88,6 +92,7 @@ const Auth: React.FC = () => {
           password: formData.password,
           name: formData.name,
           department: formData.department,
+          role: formData.role as any,
         });
 
         if (result.success) {
@@ -125,7 +130,7 @@ const Auth: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -204,6 +209,31 @@ const Auth: React.FC = () => {
                   </div>
                   {errors.department && (
                     <p className="text-sm text-destructive mt-1">{errors.department}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="role" className="form-label">
+                    Role
+                  </Label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+                    <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleInputChange}
+                      className={`form-input pl-10 w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none cursor-pointer ${errors.role ? 'border-destructive' : ''} ${!formData.role ? 'text-muted-foreground' : ''}`}
+                    >
+                      <option value="" disabled>Enter your role</option>
+                      <option value="student">Student</option>
+                      <option value="academic_faculty">Academic Faculty</option>
+                      <option value="lab_incharge">Lab Incharge</option>
+                      <option value="maintenance_incharge">Maintenance Incharge</option>
+                    </select>
+                  </div>
+                  {errors.role && (
+                    <p className="text-sm text-destructive mt-1">{errors.role}</p>
                   )}
                 </div>
               </>

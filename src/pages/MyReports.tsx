@@ -4,7 +4,8 @@ import { Plus, Search, Filter, MapPin, Clock, MessageSquare, ChevronRight, Trash
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-import { getIssuesByUserId, deleteIssue, Issue } from '@/lib/storage';
+import { getReportsByUserId } from '@/lib/firebaseService';
+import { deleteIssue } from '@/lib/storage';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { toast } from 'sonner';
 import {
@@ -19,10 +20,22 @@ const MyReports: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [selectedIssue, setSelectedIssue] = useState<any | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [issues, setIssues] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const issues = user ? getIssuesByUserId(user.id) : [];
+  React.useEffect(() => {
+    const fetchIssues = async () => {
+      if (user) {
+        setIsLoading(true);
+        const firebaseIssues = await getReportsByUserId(user.id);
+        setIssues(firebaseIssues);
+        setIsLoading(false);
+      }
+    };
+    fetchIssues();
+  }, [user, refreshKey]);
 
   const handleDelete = (e: React.MouseEvent, issueId: string) => {
     e.stopPropagation();
