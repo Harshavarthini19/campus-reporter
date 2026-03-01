@@ -77,10 +77,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true };
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("Login error:", error.code, error.message);
       let message = 'An error occurred during login.';
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        message = 'Invalid email or password.';
+      switch (error.code) {
+        case 'auth/user-not-found':
+          message = 'No account found with this email. Please sign up first.';
+          break;
+        case 'auth/wrong-password':
+          message = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/invalid-credential':
+          message = 'Invalid email or password. Please check and try again.';
+          break;
+        case 'auth/invalid-email':
+          message = 'Invalid email address format.';
+          break;
+        case 'auth/user-disabled':
+          message = 'This account has been disabled. Contact admin.';
+          break;
+        case 'auth/too-many-requests':
+          message = 'Too many failed attempts. Please try again later.';
+          break;
+        case 'auth/network-request-failed':
+          message = 'Network error. Please check your internet connection.';
+          break;
+        default:
+          message = `Login error: ${error.message || 'An unexpected error occurred.'}`;
+          break;
       }
       return { success: false, error: message };
     }
