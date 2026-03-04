@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
 
   const stats = {
     total: userIssues.length,
-    pending: userIssues.filter(i => i.status === 'new' || i.status === 'in-progress').length,
+    pending: userIssues.filter(i => i.status === 'new' || i.status === 'in-progress' || i.status === 'pending').length,
     resolved: userIssues.filter(i => i.status === 'resolved' || i.status === 'closed').length,
     highPriority: userIssues.filter(i => i.priority === 'high').length,
   };
@@ -52,6 +52,7 @@ const Dashboard: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       'new': 'status-badge status-new',
+      'pending': 'status-badge status-new',
       'in-progress': 'status-badge status-in-progress',
       'under-review': 'status-badge status-in-progress',
       'resolved': 'status-badge status-resolved',
@@ -187,7 +188,7 @@ const Dashboard: React.FC = () => {
                       <span className="text-xl">{getTypeIcon(issue.type)}</span>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-foreground truncate">{issue.title}</p>
-                        <p className="text-sm text-muted-foreground mt-0.5">{issue.location.name}</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">{typeof issue.location === 'string' ? issue.location : issue.location?.name || 'N/A'}</p>
                         <div className="flex items-center gap-3 mt-2">
                           <span className={getStatusBadge(issue.status)}>
                             {issue.status.replace('-', ' ')}

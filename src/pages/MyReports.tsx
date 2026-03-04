@@ -52,10 +52,11 @@ const MyReports: React.FC = () => {
       if (typeFilter !== 'all' && issue.type !== typeFilter) return false;
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
+        const locationStr = typeof issue.location === 'string' ? issue.location : issue.location?.name || '';
         return (
           issue.title.toLowerCase().includes(query) ||
           issue.description.toLowerCase().includes(query) ||
-          issue.location.name.toLowerCase().includes(query)
+          locationStr.toLowerCase().includes(query)
         );
       }
       return true;
@@ -75,6 +76,7 @@ const MyReports: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       'new': 'status-badge status-new',
+      'pending': 'status-badge status-new',
       'in-progress': 'status-badge status-in-progress',
       'under-review': 'status-badge status-in-progress',
       'resolved': 'status-badge status-resolved',
@@ -216,13 +218,13 @@ const MyReports: React.FC = () => {
                       </span>
                       <span className="flex items-center gap-1 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4" />
-                        {issue.location.name}
+                        {typeof issue.location === 'string' ? issue.location : issue.location?.name || 'N/A'}
                       </span>
                       <span className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />
                         {formatDate(issue.createdAt)}
                       </span>
-                      {issue.comments.length > 0 && (
+                      {issue.comments?.length > 0 && (
                         <span className="flex items-center gap-1 text-sm text-muted-foreground">
                           <MessageSquare className="h-4 w-4" />
                           {issue.comments.length} comments
@@ -280,7 +282,7 @@ const MyReports: React.FC = () => {
                       <span className="text-sm text-muted-foreground">Location</span>
                       <p className="font-medium text-foreground flex items-center gap-1 mt-1">
                         <MapPin className="h-4 w-4" />
-                        {selectedIssue.location.name}
+                        {typeof selectedIssue.location === 'string' ? selectedIssue.location : selectedIssue.location?.name || 'N/A'}
                       </p>
                     </div>
                     <div>
@@ -298,7 +300,7 @@ const MyReports: React.FC = () => {
                   </div>
 
                   {/* Comments */}
-                  {selectedIssue.comments.length > 0 && (
+                  {selectedIssue.comments?.length > 0 && (
                     <div>
                       <h4 className="font-medium text-foreground mb-4">Activity</h4>
                       <div className="space-y-4">
